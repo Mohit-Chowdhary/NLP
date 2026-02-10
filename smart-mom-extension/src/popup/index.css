@@ -1,0 +1,82 @@
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-primary: #38bdf8;
+  --accent-secondary: #0ea5e9;
+  --border-color: #334155;
+  --border-width: 2px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  width: 400px;
+  min-height: 500px;
+}
+
+.card {
+  background-color: var(--bg-secondary);
+  border: var(--border-width) solid var(--border-color);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.button {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 4px solid var(--accent-secondary);
+}
+
+.button:active {
+  border-bottom-width: 0;
+  transform: translateY(4px);
+}
+
+.header {
+  border-bottom: var(--border-width) solid var(--border-color);
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--text-secondary);
+}
+
+.status-dot.active {
+  background-color: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}

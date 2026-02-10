@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TaskFlow - Minutes & Tasks</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">TaskFlow</h1>
+            <div class="status-indicator">
+                <div id="status-dot" class="status-dot"></div>
+                <span id="status-text">Ready</span>
+            </div>
+        </header>
+
+        <main style="padding: 0 1rem;">
+            <div id="api-key-section" class="card" style="border-color: #f59e0b; display: none;">
+                <div
+                    style="display: flex; align-items: center; gap: 0.5rem; color: #f59e0b; font-size: 0.875rem; font-weight: 700;">
+                    API KEY REQUIRED
+                </div>
+                <button id="set-api-key-btn" class="button"
+                    style="margin-top: 0.5rem; width: 100%; background-color: #f59e0b; border-bottom-color: #d97706;">
+                    Set OpenAI Key
+                </button>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-size: 1rem; font-weight: 700;">SESSION CONTROL</h2>
+                        <p id="control-status" style="font-size: 0.75rem; color: #94a3b8;">Status: Ready</p>
+                    </div>
+                </div>
+                <div id="api-key-status"
+                    style="margin-top: 1rem; font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; display: none;">
+                    <span id="masked-key">API Key: ••••••••</span>
+                    <button id="change-key-btn"
+                        style="background: none; border: none; color: #38bdf8; cursor: pointer; font-weight: 700; font-size: 0.625rem;">CHANGE</button>
+                </div>
+            </div>
+
+            <div id="mom-result" class="card" style="display: none;">
+                <h2 style="font-size: 1rem; font-weight: 700; color: #38bdf8; margin-bottom: 1rem;">LATEST MINUTES</h2>
+                <div style="font-size: 0.875rem;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <strong style="display: block; color: #94a3b8; font-size: 0.75rem;">SUMMARY</strong>
+                        <p id="mom-summary-text"></p>
+                    </div>
+                    <div>
+                        <strong style="display: block; color: #94a3b8; font-size: 0.75rem;">ACTION ITEMS</strong>
+                        <div id="action-items-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800;" id="task-count">0</div>
+                    <div style="font-size: 0.625rem; color: #94a3b8; font-weight: 700;">DETECTED TASKS</div>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 800;">-</div>
+                    <div style="font-size: 0.625rem; color: #94a3b8; font-weight: 700;">PAST MEETINGS</div>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            style="margin-top: 2rem; padding: 1rem; border-top: 2px solid #334155; text-align: center; font-size: 0.625rem; color: #94a3b8;">
+            TASKFLOW V1.0.0 // VANILLA REFACTOR // NO BUILD
+        </footer>
+    </div>
+    <script type="module" src="popup.js"></script>
+</body>
+
+</html>
