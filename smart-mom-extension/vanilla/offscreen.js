@@ -1,5 +1,4 @@
-import { transcribeAudio } from './src/services/transcription.js';
-import { generateMoM } from './src/services/summarizer.js';
+import { generateMoMWithGemini } from './src/services/gemini.js';
 import { CONFIG } from './src/config.js';
 
 let recorder;
@@ -20,47 +19,64 @@ async function startRecording(streamId) {
 
     const media = await navigator.mediaDevices.getUserMedia({
         audio: {
-            mandatory: {
-                chromeMediaSource: 'tab',
-                chromeMediaSourceId: streamId
-            }
-        },
-        video: false
+            chromeMediaSource: 'tab',
+            chromeMediaSourceId: streamId
+        }
     });
 
     const output = new AudioContext();
     const source = output.createMediaStreamSource(media);
+
+    // Visualizer Setup
+    const analyser = output.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
     source.connect(output.destination);
 
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const broadcastLevel = () => {
+        if (recorder?.state !== 'recording') return;
+        analyser.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((p, c) => p + c, 0) / bufferLength;
+        chrome.runtime.sendMessage({ type: 'AUDIO_LEVEL', level: average });
+        setTimeout(broadcastLevel, 100);
+    };
+    broadcastLevel();
+
     recorder = new MediaRecorder(media, { mimeType: 'audio/webm' });
-    recorder.ondataavailable = (event) => data.push(event.data);
+    recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) data.push(event.data);
+    };
     recorder.onstop = async () => {
         const blob = new Blob(data, { type: 'audio/webm' });
         data = [];
 
         try {
-            const { openai_api_key: storageKey } = await chrome.storage.local.get('openai_api_key');
-            const apiKey = storageKey || CONFIG.OPENAI_API_KEY;
+            await chrome.storage.local.set({ status: 'AI is thinking...' });
 
-            if (!apiKey) throw new Error('OpenAI API Key not found. Please set it in config.js or the extension popup.');
+            const { gemini_api_key: storageGemini } = await chrome.storage.local.get('gemini_api_key');
+            const geminiKey = storageGemini || CONFIG.GEMINI_API_KEY;
 
-            const transcriptData = await transcribeAudio(blob, apiKey);
-            const momResult = await generateMoM(transcriptData.text, apiKey);
+            if (!geminiKey) throw new Error('Gemini API Key missing. Open the extension popup and set it.');
 
-            // Save result and notify
+            console.log('TaskFlow: Sending audio to Gemini...');
+            const momResult = await generateMoMWithGemini(blob, geminiKey);
+            console.log('TaskFlow: Gemini response received.');
+
             await chrome.storage.local.set({
                 lastMoM: momResult,
-                status: 'MoM generated'
+                status: 'MoM Ready'
             });
 
-            chrome.runtime.sendMessage({
-                action: 'MOM_GENERATED',
-                data: momResult
-            });
+            chrome.runtime.sendMessage({ action: 'MOM_GENERATED', data: momResult });
 
         } catch (error) {
-            console.error('TaskFlow Processing error:', error);
+            console.error('TaskFlow: Processing error:', error);
+            await chrome.storage.local.set({ status: 'Error: ' + error.message });
             chrome.runtime.sendMessage({ action: 'PROCESSING_ERROR', error: error.message });
+            alert('TaskFlow Error: ' + error.message);
         }
     };
 

@@ -54,6 +54,19 @@ const injectOverlay = () => {
 
     let isRecording = false;
 
+    const sendMessageSafe = (message) => {
+        try {
+            if (chrome.runtime?.id) {
+                chrome.runtime.sendMessage(message);
+            } else {
+                throw new Error('Extension context invalidated.');
+            }
+        } catch (e) {
+            console.error('TaskFlow: Extension context invalidated. Please refresh the page.', e);
+            alert('TaskFlow: The extension has been updated or reloaded. Please refresh this page to continue.');
+        }
+    };
+
     btn.onclick = () => {
         isRecording = !isRecording;
         if (isRecording) {
@@ -62,16 +75,24 @@ const injectOverlay = () => {
             btn.style.borderBottomColor = '#b91c1c';
             statusDot.style.background = '#ef4444';
             statusDot.style.boxShadow = '0 0 8px #ef4444';
-            chrome.runtime.sendMessage({ action: 'START_RECORDING' });
+            sendMessageSafe({ action: 'START_RECORDING' });
         } else {
             btn.innerText = 'Start Session';
             btn.style.background = '#38bdf8';
             btn.style.borderBottomColor = '#0ea5e9';
             statusDot.style.background = '#94a3b8';
             statusDot.style.boxShadow = 'none';
-            chrome.runtime.sendMessage({ action: 'STOP_RECORDING' });
+            sendMessageSafe({ action: 'STOP_RECORDING' });
         }
     };
+
+    chrome.runtime.onMessage.addListener((msg) => {
+        if (msg.type === 'AUDIO_LEVEL') {
+            const scale = 1 + (msg.level / 100);
+            statusDot.style.transform = `scale(${scale})`;
+            statusDot.style.opacity = msg.level > 10 ? '1' : '0.5';
+        }
+    });
 
     overlay.appendChild(statusDot);
     overlay.appendChild(label);
