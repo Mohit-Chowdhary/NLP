@@ -1,0 +1,46 @@
+{
+    "manifest_version": 3,
+    "name": "Automeeto",
+    "version": "1.0.0",
+    "description": "Local AI Meeting Minutes for Google Meet",
+    "permissions": [
+        "tabCapture",
+        "storage",
+        "activeTab",
+        "offscreen",
+        "identity"
+    ],
+    "host_permissions": [
+        "https://meet.google.com/*",
+        "https://huggingface.co/*",
+        "https://*.huggingface.co/*",
+        "https://cdn.jsdelivr.net/*"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+    },
+    "action": {
+        "default_popup": "index.html"
+    },
+    "background": {
+        "service_worker": "assets/background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://meet.google.com/*"
+            ],
+            "js": [
+                "assets/content.js"
+            ]
+        }
+    ],
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+L"
+            }
+        }
+    }
+}
